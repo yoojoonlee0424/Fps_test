@@ -35,7 +35,19 @@ public class PlayerController : MonoBehaviour
     public Vector3 jumpingForce;
     private Vector3 jumpingForceVelocity;
 
+    [Header("자세")]
+    public PlayerStance playerStance;
 
+    public float playerStanceSmoothing;
+
+    public CharacterStance PlayerStandStance;
+    public CharacterStance PlayerCroucStance;
+    public CharacterStance PlayerProneStance;
+
+    private float cameraHeight;
+    private float cameraHeightVelocity;
+
+    private Vector3 stanceCapsuleCenter;
 
     private void Awake()
     {
@@ -52,6 +64,8 @@ public class PlayerController : MonoBehaviour
         newCharactorRotation = transform.localRotation.eulerAngles;
 
         characterController = GetComponent<CharacterController>();
+
+        cameraHeight = camHolder.localPosition.y;
     }
 
     private void Update()
@@ -59,6 +73,7 @@ public class PlayerController : MonoBehaviour
         CalculateView();
         CalculateMovement();
         CalculateJump();
+        CalculateCameraHeight();
     }
 
 
@@ -89,22 +104,18 @@ public class PlayerController : MonoBehaviour
 
         
         
-        if(playerGravity > gravityMin &&  jumpingForce.y < 0.1f)
+        if(playerGravity > gravityMin)
         {
             playerGravity -= gravityAmount * Time.deltaTime;
         }
 
         
 
-        if(playerGravity < -1 && characterController.isGrounded)
+        if(playerGravity < -0.1f && characterController.isGrounded)
         {
-            playerGravity = -1;
+            playerGravity = -0.1f;
         }
-
-        if(jumpingForce.y > 0.1f)
-        {
-            playerGravity = 0;
-        }
+     
 
         newMovementSpeed.y += playerGravity;
 
@@ -119,6 +130,31 @@ public class PlayerController : MonoBehaviour
         jumpingForce = Vector3.SmoothDamp(jumpingForce,Vector3.zero, ref jumpingForceVelocity, playerSet.JumpingFalloff);
     }
 
+
+
+    private void CalculateCameraHeight()
+    {
+        var stanceHeight = PlayerStandStance.CameraHeight;
+
+        if (playerStance == PlayerStance.Crouching)
+        {
+            stanceHeight = PlayerCroucStance.CameraHeight;
+        }
+        else if(playerStance == PlayerStance.Prone)
+        {
+            stanceHeight = PlayerProneStance.CameraHeight;
+        }
+
+
+        cameraHeight = Mathf.SmoothDamp(camHolder.localPosition.y, stanceHeight, ref cameraHeightVelocity, playerStanceSmoothing);
+
+        camHolder.localPosition = new Vector3(camHolder.localPosition.x, cameraHeight, camHolder.localPosition.z);
+
+    }
+
+
+
+
     private void Jump()
     {
         if(!characterController.isGrounded)
@@ -127,6 +163,7 @@ public class PlayerController : MonoBehaviour
         }
 
         jumpingForce = Vector3.up * playerSet.JumpingHeight;
+        playerGravity = 0;
 
     }
 
