@@ -23,8 +23,19 @@ public class PlayerController : MonoBehaviour
 
     [Header("설정")]
     public PlayerSettingsModel playerSet;
+
     public float viewClampYmin= -70;
     public float viewClampYmax= 80;
+
+    [Header("중력")]
+    public float gravityAmount;
+    public float gravityMin;
+    private float playerGravity;
+
+    public Vector3 jumpingForce;
+    private Vector3 jumpingForceVelocity;
+
+
 
     private void Awake()
     {
@@ -32,7 +43,7 @@ public class PlayerController : MonoBehaviour
 
         defaultInput.OnFoot.Movement.performed += e => input_Movement = e.ReadValue<Vector2>();
         defaultInput.OnFoot.View.performed += e => input_View = e.ReadValue<Vector2>();
-
+        defaultInput.OnFoot.Jump.performed += e => Jump();
 
         defaultInput.Enable();
 
@@ -47,6 +58,7 @@ public class PlayerController : MonoBehaviour
     {
         CalculateView();
         CalculateMovement();
+        CalculateJump();
     }
 
 
@@ -75,10 +87,53 @@ public class PlayerController : MonoBehaviour
 
         newMovementSpeed = transform.TransformDirection(newMovementSpeed);
 
+        
+        
+        if(playerGravity > gravityMin &&  jumpingForce.y < 0.1f)
+        {
+            playerGravity -= gravityAmount * Time.deltaTime;
+        }
+
+        
+
+        if(playerGravity < -1 && characterController.isGrounded)
+        {
+            playerGravity = -1;
+        }
+
+        if(jumpingForce.y > 0.1f)
+        {
+            playerGravity = 0;
+        }
+
+        newMovementSpeed.y += playerGravity;
+
+        newMovementSpeed += jumpingForce * Time.deltaTime;
 
         characterController.Move(newMovementSpeed);
 
     }
+
+    private void CalculateJump()
+    {
+        jumpingForce = Vector3.SmoothDamp(jumpingForce,Vector3.zero, ref jumpingForceVelocity, playerSet.JumpingFalloff);
+    }
+
+    private void Jump()
+    {
+        if(!characterController.isGrounded)
+        {
+            return;
+        }
+
+        jumpingForce = Vector3.up * playerSet.JumpingHeight;
+
+    }
+
+
+
+
+
 
 
 }

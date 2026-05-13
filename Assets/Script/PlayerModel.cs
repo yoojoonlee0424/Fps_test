@@ -25,6 +25,11 @@ public static class PlayerModel
         public float WalkingFowardSpeed;
         public float WalkingBackwardSpeed;
         public float WalkingStrafeSpeed;
+
+        [Header("점프 설정")]
+        public float JumpingHeight;
+        public float JumpingFalloff;
+        
     }
 
     #endregion
