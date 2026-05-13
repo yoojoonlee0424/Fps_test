@@ -196,13 +196,22 @@ public class PlayerController : MonoBehaviour
     {
         if(playerStance ==  PlayerStance.Crouching)
         {
-            if (StandCheack())
+            if (StandCheack(PlayerStandStance.StanceCollider.height))
+            {
+                return;
+            }
 
 
 
             playerStance = PlayerStance.Standing;
             return;
         }
+
+        if (StandCheack(PlayerCrouchStance.StanceCollider.height))
+        {
+            return;
+        }
+
 
         playerStance = PlayerStance.Crouching;
     }

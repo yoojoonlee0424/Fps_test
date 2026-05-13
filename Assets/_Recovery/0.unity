@@ -787,7 +787,7 @@ MonoBehaviour:
     StanceCollider: {fileID: 1265040961}
   PlayerCrouchStance:
     CameraHeight: 0
-    StanceCollider: {fileID: 1265040966}
+    StanceCollider: {fileID: 0}
   PlayerProneStance:
     CameraHeight: -0.6
     StanceCollider: {fileID: 1265040965}
