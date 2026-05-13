@@ -1,10 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
-using static 
+using static PlayerModel;
 
 public class PlayerController : MonoBehaviour
 {
+    private CharacterController characterController;
+
     private PlayerInput defaultInput;
 
     public Vector2 input_Movement;
@@ -12,12 +16,15 @@ public class PlayerController : MonoBehaviour
 
 
     private Vector3 newCamRotation;
+    private Vector3 newCharactorRotation;
 
     [Header("Ref")]
     public Transform camHolder;
 
     [Header("설정")]
-    public PlayerSettingsModel playerSettings;
+    public PlayerSettingsModel playerSet;
+    public float viewClampYmin= -70;
+    public float viewClampYmax= 80;
 
     private void Awake()
     {
@@ -31,7 +38,9 @@ public class PlayerController : MonoBehaviour
 
 
         newCamRotation = camHolder.localRotation.eulerAngles;
+        newCharactorRotation = transform.localRotation.eulerAngles;
 
+        characterController = GetComponent<CharacterController>();
     }
 
     private void Update()
@@ -44,7 +53,13 @@ public class PlayerController : MonoBehaviour
     private void CalculateView()
     {
 
+        newCharactorRotation.y += playerSet.ViewXSensitivity * input_View.x * Time.deltaTime;
+        transform.localRotation = Quaternion.Euler(newCharactorRotation);
 
+
+        newCamRotation.x += playerSet.ViewYSensitivity * input_View.y * Time.deltaTime;
+
+        newCamRotation.x = Mathf.Clamp(newCamRotation.x, viewClampYmin, viewClampYmax);
 
         camHolder.localRotation = Quaternion.Euler(newCamRotation);
     }
@@ -52,6 +67,16 @@ public class PlayerController : MonoBehaviour
 
     private void CalculateMovement()
     {
+        var verticalSpeed = playerSet.WalkingFowardSpeed * input_Movement.y * Time.deltaTime;
+        var horizontalSpeed = playerSet.WalkingStrafeSpeed * input_Movement.x * Time.deltaTime;
+
+
+        var newMovementSpeed = new Vector3(horizontalSpeed, 0,verticalSpeed);
+
+        newMovementSpeed = transform.TransformDirection(newMovementSpeed);
+
+
+        characterController.Move(newMovementSpeed);
 
     }
 
