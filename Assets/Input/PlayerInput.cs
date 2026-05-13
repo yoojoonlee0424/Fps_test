@@ -136,6 +136,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Sprint"",
+                    ""type"": ""Button"",
+                    ""id"": ""fea48e84-b579-4a9f-8101-9cb58f7e26c9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SprintReleased"",
+                    ""type"": ""Button"",
+                    ""id"": ""4de302a5-357d-44c0-916f-8d68d484d812"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -248,6 +266,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""Prone"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a24b07c-4c5b-4ac7-9ff1-d7d72d51a2cc"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sprint"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6e5d6693-7e35-4687-ac29-2c59b2ef58a8"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": ""Press(behavior=1)"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SprintReleased"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -261,6 +301,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_OnFoot_View = m_OnFoot.FindAction("View", throwIfNotFound: true);
         m_OnFoot_Crouch = m_OnFoot.FindAction("Crouch", throwIfNotFound: true);
         m_OnFoot_Prone = m_OnFoot.FindAction("Prone", throwIfNotFound: true);
+        m_OnFoot_Sprint = m_OnFoot.FindAction("Sprint", throwIfNotFound: true);
+        m_OnFoot_SprintReleased = m_OnFoot.FindAction("SprintReleased", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -346,6 +388,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_OnFoot_View;
     private readonly InputAction m_OnFoot_Crouch;
     private readonly InputAction m_OnFoot_Prone;
+    private readonly InputAction m_OnFoot_Sprint;
+    private readonly InputAction m_OnFoot_SprintReleased;
     /// <summary>
     /// Provides access to input actions defined in input action map "OnFoot".
     /// </summary>
@@ -377,6 +421,14 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "OnFoot/Prone".
         /// </summary>
         public InputAction @Prone => m_Wrapper.m_OnFoot_Prone;
+        /// <summary>
+        /// Provides access to the underlying input action "OnFoot/Sprint".
+        /// </summary>
+        public InputAction @Sprint => m_Wrapper.m_OnFoot_Sprint;
+        /// <summary>
+        /// Provides access to the underlying input action "OnFoot/SprintReleased".
+        /// </summary>
+        public InputAction @SprintReleased => m_Wrapper.m_OnFoot_SprintReleased;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -418,6 +470,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Prone.started += instance.OnProne;
             @Prone.performed += instance.OnProne;
             @Prone.canceled += instance.OnProne;
+            @Sprint.started += instance.OnSprint;
+            @Sprint.performed += instance.OnSprint;
+            @Sprint.canceled += instance.OnSprint;
+            @SprintReleased.started += instance.OnSprintReleased;
+            @SprintReleased.performed += instance.OnSprintReleased;
+            @SprintReleased.canceled += instance.OnSprintReleased;
         }
 
         /// <summary>
@@ -444,6 +502,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Prone.started -= instance.OnProne;
             @Prone.performed -= instance.OnProne;
             @Prone.canceled -= instance.OnProne;
+            @Sprint.started -= instance.OnSprint;
+            @Sprint.performed -= instance.OnSprint;
+            @Sprint.canceled -= instance.OnSprint;
+            @SprintReleased.started -= instance.OnSprintReleased;
+            @SprintReleased.performed -= instance.OnSprintReleased;
+            @SprintReleased.canceled -= instance.OnSprintReleased;
         }
 
         /// <summary>
@@ -519,5 +583,19 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnProne(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Sprint" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSprint(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SprintReleased" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSprintReleased(InputAction.CallbackContext context);
     }
 }

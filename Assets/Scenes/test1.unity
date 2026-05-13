@@ -767,11 +767,20 @@ MonoBehaviour:
   playerSet:
     ViewXSensitivity: 20
     ViewYSensitivity: 20
-    WalkingFowardSpeed: 5
+    SprintingHold: 1
+    MovementSmoothing: 0.1
+    RunningFowardSpeed: 6
+    RunningStrafeSpeed: 4
+    WalkingFowardSpeed: 4
     WalkingBackwardSpeed: 2
     WalkingStrafeSpeed: 3
     JumpingHeight: 5
     JumpingFalloff: 0.4
+    FallingSmoothing: 0.2
+    SpeedEffector: 1
+    CrouchSpeedEffector: 0.6
+    ProneSpeedEffector: 0.2
+    FallingSpeedEffector: 0.4
   viewClampYmin: -70
   viewClampYmax: 80
   playerMask:

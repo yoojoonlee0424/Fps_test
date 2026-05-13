@@ -57,7 +57,11 @@ public class PlayerController : MonoBehaviour
     private Vector3 stanceCapsuleCenterVelocity;
     private float stanceCapsuleHeightVelocity;
 
+    private bool isSprinting;
 
+    private Vector3 newMovementSpeed;
+    private Vector3 newMovementSpeedVelocity;
+    
 
 
 
@@ -71,6 +75,9 @@ public class PlayerController : MonoBehaviour
 
         defaultInput.OnFoot.Crouch.performed += e => Crouch();
         defaultInput.OnFoot.Prone.performed += e => Prone();
+
+        defaultInput.OnFoot.Sprint.performed += e => ToggleSprint();
+        defaultInput.OnFoot.SprintReleased.performed += e => StopSprint();
 
         defaultInput.Enable();
 
@@ -111,13 +118,56 @@ public class PlayerController : MonoBehaviour
 
     private void CalculateMovement()
     {
-        var verticalSpeed = playerSet.WalkingFowardSpeed * input_Movement.y * Time.deltaTime;
-        var horizontalSpeed = playerSet.WalkingStrafeSpeed * input_Movement.x * Time.deltaTime;
+
+        if(input_Movement.y <= 0.2f)
+        {
+            isSprinting = false;
+        }
 
 
-        var newMovementSpeed = new Vector3(horizontalSpeed, 0,verticalSpeed);
 
-        newMovementSpeed = transform.TransformDirection(newMovementSpeed);
+
+
+
+        var verticalSpeed = playerSet.WalkingFowardSpeed;
+        var horizontalSpeed = playerSet.WalkingStrafeSpeed;
+
+        if(isSprinting)
+        {
+            verticalSpeed = playerSet.RunningFowardSpeed;
+            horizontalSpeed = playerSet.RunningStrafeSpeed;
+        }
+
+        if(!characterController.isGrounded)
+        {
+            playerSet.SpeedEffector = playerSet.FallingSpeedEffector;
+        }
+        else if(playerStance == PlayerStance.Crouching)
+        {
+            playerSet.SpeedEffector = playerSet.CrouchSpeedEffector;
+        }
+        else if (playerStance == PlayerStance.Prone)
+        {
+            playerSet.SpeedEffector = playerSet.ProneSpeedEffector;
+        }
+        else
+        {
+            playerSet.SpeedEffector = 1;
+        }
+
+        verticalSpeed *= playerSet.SpeedEffector;
+        horizontalSpeed *= playerSet.SpeedEffector;
+
+
+
+        
+
+
+        newMovementSpeed = Vector3.SmoothDamp(newMovementSpeed,
+            new Vector3(horizontalSpeed * input_Movement.x * Time.deltaTime, 0, verticalSpeed * input_Movement.y * Time.deltaTime), 
+            ref newMovementSpeedVelocity, characterController.isGrounded ? playerSet.MovementSmoothing : playerSet.FallingSmoothing);
+
+        var MovementSpeed = transform.TransformDirection(newMovementSpeed);
 
         
         
@@ -134,11 +184,11 @@ public class PlayerController : MonoBehaviour
         }
      
 
-        newMovementSpeed.y += playerGravity;
+        MovementSpeed.y += playerGravity;
 
-        newMovementSpeed += jumpingForce * Time.deltaTime;
+        MovementSpeed += jumpingForce * Time.deltaTime;
 
-        characterController.Move(newMovementSpeed);
+        characterController.Move(MovementSpeed);
 
     }
 
@@ -181,10 +231,24 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        if(!characterController.isGrounded)
+        if(!characterController.isGrounded || playerStance == PlayerStance.Prone)
         {
             return;
         }
+
+        if(playerStance == PlayerStance.Crouching)
+        {
+            if (StandCheack(PlayerStandStance.StanceCollider.height))
+            {
+                return;
+            }
+
+
+            playerStance = PlayerStance.Standing;
+            return;
+        }
+
+
 
         jumpingForce = Vector3.up * playerSet.JumpingHeight;
         playerGravity = 0;
@@ -233,5 +297,33 @@ public class PlayerController : MonoBehaviour
 
         return Physics.CheckCapsule(start,end,characterController.radius, playerMask);
     }
+
+    private void ToggleSprint()
+    {
+        if (input_Movement.y <= 0.2f)
+        {
+            isSprinting = false;
+            return;
+        }
+
+
+
+
+
+        isSprinting = !isSprinting;
+    }
+
+    private void StopSprint()
+    {
+        if(playerSet.SprintingHold)
+        {
+            isSprinting = false;
+        }
+
+
+
+    }
+
+
 
 }

@@ -32,16 +32,33 @@ public static class PlayerModel
 
 
 
-
         [Header("이동 설정")]
+        public bool SprintingHold;
+        public float MovementSmoothing;
+
+        [Header("이동 설정 - 뛰기")]
+        public float RunningFowardSpeed;
+        public float RunningStrafeSpeed;
+
+
+
+        [Header("이동 설정 - 걷기")]
         public float WalkingFowardSpeed;
         public float WalkingBackwardSpeed;
         public float WalkingStrafeSpeed;
 
+
         [Header("점프 설정")]
         public float JumpingHeight;
         public float JumpingFalloff;
-        
+        public float FallingSmoothing;
+
+
+        [Header("속도 배율 설정")]
+        public float SpeedEffector = 1;
+        public float CrouchSpeedEffector;
+        public float ProneSpeedEffector;
+        public float FallingSpeedEffector;
     }
 
     [Serializable]
