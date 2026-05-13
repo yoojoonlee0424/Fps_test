@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using NUnit.Framework.Internal;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using static PlayerModel;
@@ -20,12 +22,15 @@ public class PlayerController : MonoBehaviour
 
     [Header("Ref")]
     public Transform camHolder;
+    public Transform feetTransfrom;
 
     [Header("설정")]
     public PlayerSettingsModel playerSet;
 
     public float viewClampYmin= -70;
     public float viewClampYmax= 80;
+
+    public LayerMask playerMask;
 
     [Header("중력")]
     public float gravityAmount;
@@ -41,14 +46,20 @@ public class PlayerController : MonoBehaviour
     public float playerStanceSmoothing;
 
     public CharacterStance PlayerStandStance;
-    public CharacterStance PlayerCroucStance;
+    public CharacterStance PlayerCrouchStance;
     public CharacterStance PlayerProneStance;
+
+    private float stanceCheckForError = 0.05f;
 
     private float cameraHeight;
     private float cameraHeightVelocity;
 
     private Vector3 stanceCapsuleCenterVelocity;
     private float stanceCapsuleHeightVelocity;
+
+
+
+
 
     private void Awake()
     {
@@ -78,6 +89,8 @@ public class PlayerController : MonoBehaviour
         CalculateMovement();
         CalculateJump();
         CalculateStance();
+
+
     }
 
 
@@ -142,7 +155,7 @@ public class PlayerController : MonoBehaviour
 
         if (playerStance == PlayerStance.Crouching)
         {
-            currentStance = PlayerCroucStance;
+            currentStance = PlayerCrouchStance;
         }
         else if(playerStance == PlayerStance.Prone)
         {
@@ -183,6 +196,10 @@ public class PlayerController : MonoBehaviour
     {
         if(playerStance ==  PlayerStance.Crouching)
         {
+            if (StandCheack())
+
+
+
             playerStance = PlayerStance.Standing;
             return;
         }
@@ -196,6 +213,16 @@ public class PlayerController : MonoBehaviour
         playerStance = PlayerStance.Prone;
     }
 
+    private bool StandCheack(float stanceCheckheight)
+    {
+        var start = new Vector3(feetTransfrom.position.x,feetTransfrom.position.y + characterController.radius + stanceCheckForError, feetTransfrom.position.z);
+        var end = new Vector3(feetTransfrom.position.x, feetTransfrom.position.y - characterController.radius - stanceCheckForError + stanceCheckheight, feetTransfrom.position.z);
 
+
+
+
+
+        return Physics.CheckCapsule(start,end,characterController.radius, playerMask);
+    }
 
 }
