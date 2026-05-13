@@ -47,7 +47,8 @@ public class PlayerController : MonoBehaviour
     private float cameraHeight;
     private float cameraHeightVelocity;
 
-    private Vector3 stanceCapsuleCenter;
+    private Vector3 stanceCapsuleCenterVelocity;
+    private float stanceCapsuleHeightVelocity;
 
     private void Awake()
     {
@@ -56,6 +57,9 @@ public class PlayerController : MonoBehaviour
         defaultInput.OnFoot.Movement.performed += e => input_Movement = e.ReadValue<Vector2>();
         defaultInput.OnFoot.View.performed += e => input_View = e.ReadValue<Vector2>();
         defaultInput.OnFoot.Jump.performed += e => Jump();
+
+        defaultInput.OnFoot.Crouch.performed += e => Crouch();
+        defaultInput.OnFoot.Prone.performed += e => Prone();
 
         defaultInput.Enable();
 
@@ -73,7 +77,7 @@ public class PlayerController : MonoBehaviour
         CalculateView();
         CalculateMovement();
         CalculateJump();
-        CalculateCameraHeight();
+        CalculateStance();
     }
 
 
@@ -132,23 +136,30 @@ public class PlayerController : MonoBehaviour
 
 
 
-    private void CalculateCameraHeight()
+    private void CalculateStance()
     {
-        var stanceHeight = PlayerStandStance.CameraHeight;
+        var currentStance = PlayerStandStance;
 
         if (playerStance == PlayerStance.Crouching)
         {
-            stanceHeight = PlayerCroucStance.CameraHeight;
+            currentStance = PlayerCroucStance;
         }
         else if(playerStance == PlayerStance.Prone)
         {
-            stanceHeight = PlayerProneStance.CameraHeight;
+            currentStance = PlayerProneStance;
         }
 
 
-        cameraHeight = Mathf.SmoothDamp(camHolder.localPosition.y, stanceHeight, ref cameraHeightVelocity, playerStanceSmoothing);
+        cameraHeight = Mathf.SmoothDamp(camHolder.localPosition.y, currentStance.CameraHeight, ref cameraHeightVelocity, playerStanceSmoothing);
 
         camHolder.localPosition = new Vector3(camHolder.localPosition.x, cameraHeight, camHolder.localPosition.z);
+
+
+        characterController.height = Mathf.SmoothDamp(characterController.height, currentStance.StanceCollider.height,ref stanceCapsuleHeightVelocity, playerStanceSmoothing);
+        characterController.center = Vector3.SmoothDamp(characterController.center, currentStance.StanceCollider.center,ref stanceCapsuleCenterVelocity, playerStanceSmoothing);
+
+
+
 
     }
 
@@ -168,8 +179,22 @@ public class PlayerController : MonoBehaviour
     }
 
 
+    private void Crouch()
+    {
+        if(playerStance ==  PlayerStance.Crouching)
+        {
+            playerStance = PlayerStance.Standing;
+            return;
+        }
+
+        playerStance = PlayerStance.Crouching;
+    }
 
 
+    private void Prone()
+    {
+        playerStance = PlayerStance.Prone;
+    }
 
 
 
