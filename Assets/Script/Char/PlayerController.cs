@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     private PlayerInput defaultInput;
 
     public Vector2 input_Movement;
+    [HideInInspector]
     public Vector2 input_View;
 
 
@@ -61,9 +62,10 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 newMovementSpeed;
     private Vector3 newMovementSpeedVelocity;
-    
 
 
+    [Header("Weapon")]
+    public WeaponController currentWeapon;
 
     private void Awake()
     {
@@ -88,6 +90,14 @@ public class PlayerController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
 
         cameraHeight = camHolder.localPosition.y;
+
+
+        if(currentWeapon)
+        {
+            currentWeapon.Initialise(this);
+        }
+
+
     }
 
     private void Update()

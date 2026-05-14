@@ -69,4 +69,24 @@ public static class PlayerModel
     }
 
     #endregion
+
+
+    #region - Weapons -
+
+    [Serializable]
+    public class  WeaponSettingsModel
+    {
+        [Header("무기 움직임")]
+        public float SwayAmount;
+        public float SwaySmoothing;
+
+        public float SwayResetSmoothing;
+        public float SwayClampX;
+        public float SwayClampY;
+
+    }
+
+
+
+    #endregion
 }
